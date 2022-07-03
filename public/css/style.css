@@ -1,0 +1,37 @@
+@font-face {
+    font-family: "dragonlord";
+    src: url("/fonts/dragonlord.otf");
+}
+
+body {
+    min-height: 100vh;
+}
+
+header {
+    background-color: rgb(120, 223, 175);
+}
+
+.chat {
+    background-color: #e9e9e9;
+    width: max-content;
+}
+
+.chat-author {
+    background-color: #cde6cd;
+}
+
+.input-container {
+    position: fixed;
+    bottom: 0;
+    background-color: #e9e9e9;
+    display: flex;
+    justify-content: center;
+}
+
+#text {
+    width: 80%;
+    outline: none;
+    border: none;
+    font-size: 12pt;
+    padding: 5px 8px;
+}
