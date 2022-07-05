@@ -17,8 +17,8 @@ app.use("/", indexRoute);
 app.use(express.static("./public"));
 
 io.on("connection", (socket) => {
-    socket.on("send-message", (message, callback) => {
-        socket.broadcast.emit("receive-message", message);
+    socket.on("send-message", (user, callback) => {
+        socket.broadcast.emit("receive-message", user);
         callback();
     });
 });

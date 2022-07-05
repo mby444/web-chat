@@ -5,6 +5,7 @@
 
 body {
     min-height: 100vh;
+    overflow-x: hidden;
 }
 
 header {
@@ -14,15 +15,21 @@ header {
 .chat-subcontainer {
     display: flex;
     justify-content: flex-start;
+    flex-direction: row;
 }
 
 .chat-subcontainer-author {
     justify-content: flex-end;
 }
 
+.chat-username {
+    font-family: 'Times New Roman', Times, serif;
+}
+
 .chat {
     background-color: #e9e9e9;
     width: max-content;
+    word-break: break-all;
 }
 
 .chat-author {

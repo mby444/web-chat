@@ -6,7 +6,22 @@ socket.on("connect_error", () => {
     console.log("Socket error");
 });
 
-const getMessageElement = (message="", options={isAuthor: false}) => {
+const setUsername = (username) => {
+    localStorage.setItem("mby444-webchat-username", username);
+};
+
+const getUsername = () => {
+    let savedUsername = localStorage.getItem("mby444-webchat-username");
+    if (savedUsername) {
+        return savedUsername;
+    }
+    let userInput = prompt("Enter username");
+    if (!userInput) return getUsername();
+    setUsername(userInput);
+    return userInput;
+};
+
+const getMessageElement = (user={}, options={isAuthor: false}) => {
     const classNames1 = ["chat-subcontainer"];
     const classNames2 = ["chat", "p-2", "m-2", "rounded"];
     if (options.isAuthor) {
@@ -15,36 +30,42 @@ const getMessageElement = (message="", options={isAuthor: false}) => {
     }
     const element = `
     <div class="${classNames1.join(" ")}">
-        <div class="${classNames2.join(" ")}">${message}</div>
+        <div class="chat-username pb-1 pt-1">${options.isAuthor ? "" : user.name}</div>
+        <div class="${classNames2.join(" ")}">${user.message}</div>
     </div>
     `;
     return element;
 };
 
-const receiveMessage = (message) => {
+const receiveMessage = (user) => {
     const chatContainer = document.querySelector(".chat-container");
-    const element = getMessageElement(message, { isAuthor: false });
+    const element = getMessageElement(user, { isAuthor: false });
     const prevMessage = chatContainer.innerHTML;
     chatContainer.innerHTML = prevMessage + element;
 };
 
-const sendMessage = (message="") => {
-    message = message.trim();
-    if (!message) return;
+const sendMessage = (user={}) => {
+    user.message = user.message.replace(/(\<script\>|\<\/script\>)/gim, "");
+    if (!user.message) return;
     const chatContainer = document.querySelector(".chat-container");
-    const element = getMessageElement(message, { isAuthor: true });
+    const element = getMessageElement(user, { isAuthor: true });
     const prevMessage = chatContainer.innerHTML;
-    socket.emit("send-message", message, () => {
+    socket.emit("send-message", user, () => {
         chatContainer.innerHTML = prevMessage + element;
         textInput.value = "";
     });
 };
 
-socket.on("receive-message", (message) => {
-    receiveMessage(message);
+socket.on("receive-message", (user) => {
+    receiveMessage(user);
 });
 
 sendBtn.addEventListener("click", () => {
     const message = document.querySelector("#text").value;
-    sendMessage(message);
+    const user = { name: getUsername(), message: message.trim() };
+    sendMessage(user);
+});
+
+window.addEventListener("load", () => {
+    getUsername();
 });
