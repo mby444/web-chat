@@ -7,10 +7,16 @@ socket.on("connect_error", () => {
 });
 
 const getMessageElement = (message="", options={isAuthor: false}) => {
-    const classNames = ["chat", "p-2", "m-2", "mt-4", "mb-4", "rounded"];
-    if (options.isAuthor) classNames.push("chat-author");
+    const classNames1 = ["chat-subcontainer"];
+    const classNames2 = ["chat", "p-2", "m-2", "rounded"];
+    if (options.isAuthor) {
+        classNames1.push("chat-subcontainer-author");
+        classNames2.push("chat-author");
+    }
     const element = `
-    <div class="${classNames.join(" ")}">${message}</div>
+    <div class="${classNames1.join(" ")}">
+        <div class="${classNames2.join(" ")}">${message}</div>
+    </div>
     `;
     return element;
 };
