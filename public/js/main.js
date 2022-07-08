@@ -6,18 +6,42 @@ socket.on("connect_error", () => {
     console.log("Socket error");
 });
 
-const setUsername = (username) => {
-    localStorage.setItem("mby444-webchat-username", username);
+const getUsername = async (username) => {
+    const rawResponse = await fetch(`/data/username/${username}`);
+    const response = await rawResponse.json();
+    console.log(response);
+    return response;
 };
 
-const getUsername = () => {
+const setUsername = async (username) => {
+    localStorage.setItem("mby444-webchat-username", username);
+    const payload = JSON.stringify({ name: username });
+    const rawResponse = await fetch("/data/username", {
+        method: "POST",
+        headers: {
+            "Accept": "appliaction/json",
+            "Content-Type": "application/json"
+        },
+        body: payload
+    });
+    const response = await rawResponse.json();
+    console.log(response);
+};
+
+const generateUsername = async () => {
     let savedUsername = localStorage.getItem("mby444-webchat-username");
     if (savedUsername) {
+        await setUsername(savedUsername);
         return savedUsername;
     }
     let userInput = prompt("Enter username");
-    if (!userInput) return getUsername();
-    setUsername(userInput);
+    if (!userInput) return generateUsername();
+    let oldUsername = await getUsername(userInput);
+    if (oldUsername.data) {
+        alert("Username already exists!");
+        return generateUsername();
+    }
+    await setUsername(userInput);
     return userInput;
 };
 
@@ -64,12 +88,13 @@ socket.on("receive-message", (user) => {
     receiveMessage(user);
 });
 
-sendBtn.addEventListener("click", () => {
+sendBtn.addEventListener("click", async () => {
     const message = document.querySelector("#text").value;
-    const user = { name: getUsername(), message: message.trim() };
+    const name = await generateUsername();
+    const user = { name, message: message.trim() };
     sendMessage(user);
 });
 
 window.addEventListener("load", () => {
-    getUsername();
+    generateUsername();
 });
