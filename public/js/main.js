@@ -23,15 +23,19 @@ const getUsername = () => {
 
 const getMessageElement = (user={}, options={isAuthor: false}) => {
     const classNames1 = ["chat-subcontainer"];
-    const classNames2 = ["chat", "p-2", "m-2", "rounded"];
+    const classNames2 = ["chat-message-container"];
+    const classNames3 = ["chat", "p-2", "m-2", "rounded"];
     if (options.isAuthor) {
         classNames1.push("chat-subcontainer-author");
-        classNames2.push("chat-author");
+        classNames2.push("chat-message-container-author");
+        classNames3.push("chat-author");
     }
     const element = `
     <div class="${classNames1.join(" ")}">
         <div class="chat-username pb-1 pt-1">${options.isAuthor ? "" : user.name}</div>
-        <div class="${classNames2.join(" ")}">${user.message}</div>
+        <div class="${classNames2.join(" ")}">
+            <div class="${classNames3.join(" ")}">${user.message}</div>
+        </div>
     </div>
     `;
     return element;

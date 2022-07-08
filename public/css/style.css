@@ -15,7 +15,7 @@ header {
 .chat-subcontainer {
     display: flex;
     justify-content: flex-start;
-    flex-direction: row;
+    flex-direction: column;
 }
 
 .chat-subcontainer-author {
@@ -24,6 +24,16 @@ header {
 
 .chat-username {
     font-family: 'Times New Roman', Times, serif;
+}
+
+.chat-message-container {
+    display: flex;
+    justify-content: flex-start;
+    flex-direction: row;
+}
+
+.chat-message-container-author {
+    justify-content: flex-end;
 }
 
 .chat {
