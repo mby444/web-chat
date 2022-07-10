@@ -45,12 +45,21 @@ const generateUsername = async () => {
     return userInput;
 };
 
+const thisIsAuthor = (user={}) => {
+    const savedUsername = localStorage.getItem("mby444-webchat-username") || "";
+    const isAuthor = user.name === savedUsername;
+    return isAuthor;
+};
+
 const displayMessages = (users=[]) => {
     if (users.length === 0) return;
     const chatContainer = document.querySelector(".chat-container");
     const element = users.map((user) => {
         user.name = user.username;
-        return getMessageElement(user);
+        const options = {
+            isAuthor: thisIsAuthor(user)
+        };
+        return getMessageElement(user, options);
     }).join("");
     const prevMessage = chatContainer.innerHTML;
     chatContainer.innerHTML = prevMessage + element;
