@@ -116,7 +116,6 @@ const getMessageElement = (user={}, options={isAuthor: false}) => {
 };
 
 const receiveMessage = (user) => {
-    console.log(user);
     const chatContainer = document.querySelector(".chat-container");
     const element = getMessageElement(user, { isAuthor: false });
     const prevMessage = chatContainer.innerHTML;
@@ -153,6 +152,19 @@ const sendMessage = (user={ message: ""}) => {
         textInput.value = "";
     });
 };
+
+const setOnlineCount = (count) => {
+    const onlineCount = document.querySelector(".online-count");
+    onlineCount.textContent = count;
+};
+
+socket.on("user-online", (allSockets) => {
+    setOnlineCount(allSockets.length);
+});
+
+socket.on("user-offline", (allSockets) => {
+    setOnlineCount(allSockets.length);
+});
 
 socket.on("receive-message", (user) => {
     receiveMessage(user);
