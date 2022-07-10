@@ -14,15 +14,25 @@ router.get("/username/:name", async (req, res) => {
     res.json(options);
 });
 
+router.get("/chat/all", async (req, res) => {
+    const chats = await Chat.find({});
+    const options = {
+        error: false,
+        message: "Ok",
+        data: chats
+    };
+    res.json(options);
+});
+
 router.post("/username", async (req, res) => {
-    const { name, lastOnline=Date.now() } = req.body;
+    const { name, loginDate=Date.now() } = req.body;
     const options = {
         error: false,
         message: "Ok"
     };
     try {
         await Username.deleteMany({ name });
-        const newUsername = new Username({ name, lastOnline });
+        const newUsername = new Username({ name, loginDate });
         await newUsername.save();
         res.json(options);
     } catch (err) {
@@ -30,6 +40,29 @@ router.post("/username", async (req, res) => {
         options.message = err.message;
         res.json(options);
     }
+});
+
+router.post("/chat", async (req, res) => {
+    const { username, message, dateMs=Date.now() } = req.body;
+    const options = {
+        error: false,
+        message: "Ok"
+    };
+    const newChat = new Chat({ username, message, dateMs });
+    await newChat.save();
+    res.json(options);
+});
+
+router.delete("/username/expired", async (req, res) => {
+    const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
+    await Username.deleteMany({ loginDate: { $lt: today.getTime() } });
+});
+
+router.delete("/chat/expired", async (req, res) => {
+    const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
+    await Chat.deleteMany({ dateMs: { $lt: today.getTime() } });
 });
 
 export default router;

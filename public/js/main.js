@@ -45,6 +45,47 @@ const generateUsername = async () => {
     return userInput;
 };
 
+const displayMessages = (users=[]) => {
+    if (users.length === 0) return;
+    const chatContainer = document.querySelector(".chat-container");
+    const element = users.map((user) => {
+        user.name = user.username;
+        return getMessageElement(user);
+    }).join("");
+    const prevMessage = chatContainer.innerHTML;
+    chatContainer.innerHTML = prevMessage + element;
+};
+
+const generateStoredChat = async () => {
+    const rawResponse = await fetch("/data/chat/all");
+    const response = await rawResponse.json();
+    displayMessages(response.data);
+};
+
+const removeExpiredUsername = async () => {
+    const rawResponse = await fetch("/data/username/expired", {
+        method: "DELETE",
+        headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+        },
+    });
+    const response = await rawResponse.json();
+    console.log(response);
+};
+
+const removeExpiredChat = async () => {
+    const rawResponse = await fetch("/data/chat/expired", {
+        method: "DELETE",
+        headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+        }
+    });
+    const response = await rawResponse.json();
+    console.log(response);
+};
+
 const getMessageElement = (user={}, options={isAuthor: false}) => {
     const classNames1 = ["chat-subcontainer"];
     const classNames2 = ["chat-message-container"];
@@ -66,18 +107,38 @@ const getMessageElement = (user={}, options={isAuthor: false}) => {
 };
 
 const receiveMessage = (user) => {
+    console.log(user);
     const chatContainer = document.querySelector(".chat-container");
     const element = getMessageElement(user, { isAuthor: false });
     const prevMessage = chatContainer.innerHTML;
     chatContainer.innerHTML = prevMessage + element;
 };
 
-const sendMessage = (user={}) => {
+const sendPostMessage = async (user) => {
+    const payload = JSON.stringify({
+        username: user.name,
+        message: user.message,
+        dateMs: user.dateMs
+    });
+    const rawResponse = await fetch("/data/chat", {
+        method: "POST",
+        headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+        },
+        body: payload
+    });
+    const response = await rawResponse.json();
+    console.log(response);
+};
+
+const sendMessage = (user={ message: ""}) => {
     user.message = user.message.replace(/(\<script\>|\<\/script\>)/gim, "");
     if (!user.message) return;
     const chatContainer = document.querySelector(".chat-container");
     const element = getMessageElement(user, { isAuthor: true });
     const prevMessage = chatContainer.innerHTML;
+    sendPostMessage(user);
     socket.emit("send-message", user, () => {
         chatContainer.innerHTML = prevMessage + element;
         textInput.value = "";
@@ -96,5 +157,8 @@ sendBtn.addEventListener("click", async () => {
 });
 
 window.addEventListener("load", () => {
+    removeExpiredUsername();
+    removeExpiredChat();
+    generateStoredChat();
     generateUsername();
 });

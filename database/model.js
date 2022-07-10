@@ -16,7 +16,7 @@ const Username = mongoose.model("usernames", {
     name: {
         type: String
     },
-    lastOnline: {
+    loginDate: {
         type: Number
     }
 });
