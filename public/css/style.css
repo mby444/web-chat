@@ -9,7 +9,14 @@ body {
 }
 
 header {
+    position: fixed;
+    top: 0;
+    width: 100%;
     background-color: rgb(120, 223, 175);
+}
+
+.chat-container {
+    padding-top: 50px;
 }
 
 .chat-subcontainer {
