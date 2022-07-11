@@ -15,6 +15,7 @@ const getUsername = async (username) => {
 
 const setUsername = async (username) => {
     localStorage.setItem("mby444-webchat-username", username);
+    localStorage.setItem("mby444-webchat-username-login-date", Date.now().toString());
     const payload = JSON.stringify({ name: username });
     const rawResponse = await fetch("/data/username", {
         method: "POST",
@@ -72,6 +73,15 @@ const generateStoredChat = async () => {
 };
 
 const removeExpiredUsername = async () => {
+    const loginDate = localStorage.getItem("mby444-webchat-username-login-date") || 0;
+    const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
+
+    if (today.getTime() > parseInt(loginDate)) {
+        localStorage.removeItem("mby444-webchat-username");
+        localStorage.removeItem("mby444-webchat-username-login-date");
+    }
+
     const rawResponse = await fetch("/data/username/expired", {
         method: "DELETE",
         headers: {
