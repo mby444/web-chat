@@ -32,8 +32,10 @@ const setUsername = async (username) => {
 const generateUsername = async () => {
     let savedUsername = localStorage.getItem("mby444-webchat-username");
     if (savedUsername) {
-        await setUsername(savedUsername);
-        return savedUsername;
+        let storedUsername = await getUsername(savedUsername);
+        if (storedUsername.data) {
+            return savedUsername;
+        }
     }
     let userInput = prompt("Enter username");
     if (!userInput) return generateUsername();
