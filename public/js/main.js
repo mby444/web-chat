@@ -1,10 +1,20 @@
 const textInput = document.querySelector("#text");
+const initialBtn = document.querySelector(".initial-btn");
 const sendBtn = document.querySelector(".send-btn");
 const socket = io();
 
 socket.on("connect_error", () => {
     console.log("Socket error");
 });
+
+const enableTyping = () => {
+    const savedUsername = localStorage.getItem("mby444-webchat-username");
+    if (!savedUsername) return;
+    textInput.removeAttribute("disabled");
+    textInput.placeholder = "Type here...";
+    initialBtn.style.display = "none";
+    sendBtn.style.display = "inline";
+};
 
 const getUsername = async (username) => {
     const rawResponse = await fetch(`/data/username/${username}`);
@@ -37,8 +47,8 @@ const generateUsername = async () => {
             return savedUsername;
         }
     }
-    let userInput = prompt("Enter username");
-    if (!userInput) return generateUsername();
+    let userInput = prompt("Enter username")?.trim();
+    if (!userInput) return "";
     let oldUsername = await getUsername(userInput);
     if (oldUsername.data) {
         alert("Username already exists!");
@@ -158,6 +168,7 @@ const sendMessage = (user={ message: ""}) => {
     const chatContainer = document.querySelector(".chat-container");
     const element = getMessageElement(user, { isAuthor: true });
     const prevMessage = chatContainer.innerHTML;
+    if (!localStorage.getItem("mby444-webchat-username")) return;
     sendPostMessage(user);
     socket.emit("send-message", user, () => {
         chatContainer.innerHTML = prevMessage + element;
@@ -182,6 +193,11 @@ socket.on("receive-message", (user) => {
     receiveMessage(user);
 });
 
+initialBtn.addEventListener("click", async () => {
+    await generateUsername();
+    enableTyping();
+});
+
 sendBtn.addEventListener("click", async () => {
     const message = document.querySelector("#text").value;
     const name = await generateUsername();
@@ -193,5 +209,5 @@ window.addEventListener("load", () => {
     removeExpiredUsername();
     removeExpiredChat();
     generateStoredChat();
-    generateUsername();
+    enableTyping();
 });

@@ -73,3 +73,7 @@ header {
     font-size: 12pt;
     padding: 5px 8px;
 }
+
+.send-btn {
+    display: none;
+}
