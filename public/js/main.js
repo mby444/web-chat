@@ -3,9 +3,27 @@ const initialBtn = document.querySelector(".initial-btn");
 const sendBtn = document.querySelector(".send-btn");
 const socket = io();
 
+const spinnerButton = `
+    <span class="spinner-btn spinner-border text-light" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </span>
+`;
+
 socket.on("connect_error", () => {
     console.log("Socket error");
 });
+
+const displaySpinner = (selector="", tag="") => {
+    const element = document.querySelector(selector);
+    element.setAttribute("disabled", "disabled");
+    element.innerHTML = tag;
+};
+
+const hideSpinner = (selector="", initialText="") => {
+    const element = document.querySelector(selector);
+    element.removeAttribute("disabled");
+    element.innerHTML = initialText;
+};
 
 const willEnableTyping = async () => {
     const savedUsername = localStorage.getItem("mby444-webchat-username");
@@ -19,6 +37,14 @@ const willEnableTyping = async () => {
     return true;
 };
 
+const toggleSendBtn = (value) => {
+    if (value.trim().length === 0) {
+        sendBtn.setAttribute("disabled", "disabled");
+        return;
+    }
+    sendBtn.removeAttribute("disabled");
+};
+
 const willDisableTyping = async () => {
     const savedUsername = localStorage.getItem("mby444-webchat-username");
     if (savedUsername) {
@@ -26,7 +52,7 @@ const willDisableTyping = async () => {
         if (storedUsername.data) return false;
     }
     textInput.setAttribute("disabled", "disabled");
-    textInput.placeholder = "Enter username first";
+    textInput.placeholder = "Enter your username first";
     sendBtn.style.display = "none";
     initialBtn.style.display = "inline";
     localStorage.removeItem("mby444-webchat-username");
@@ -211,19 +237,29 @@ socket.on("receive-message", (user) => {
     receiveMessage(user);
 });
 
+textInput.addEventListener("input", (event) => {
+    toggleSendBtn(event.target.value);
+});
+
 initialBtn.addEventListener("click", async () => {
+    displaySpinner(".initial-btn", spinnerButton);
     await generateUsername();
-    willEnableTyping();
+    await willEnableTyping();
+    hideSpinner(".initial-btn", "Click here");
 });
 
 sendBtn.addEventListener("click", async () => {
+    displaySpinner(".send-btn", spinnerButton);
     const message = document.querySelector("#text").value;
     const name = await generateUsername();
     const user = { name, message: message.trim() };
-    sendMessage(user);
+    await sendMessage(user);
+    hideSpinner(".send-btn", "Send");
+    toggleSendBtn("");
 });
 
 window.addEventListener("load", () => {
+    toggleSendBtn("");
     removeExpiredUsername();
     removeExpiredChat();
     generateStoredChat();
