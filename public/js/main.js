@@ -7,13 +7,30 @@ socket.on("connect_error", () => {
     console.log("Socket error");
 });
 
-const enableTyping = () => {
+const willEnableTyping = async () => {
     const savedUsername = localStorage.getItem("mby444-webchat-username");
-    if (!savedUsername) return;
+    if (!savedUsername) return false;
+    const storedUsername = await getUsername(savedUsername);
+    if (!storedUsername.data) return false;
     textInput.removeAttribute("disabled");
     textInput.placeholder = "Type here...";
     initialBtn.style.display = "none";
     sendBtn.style.display = "inline";
+    return true;
+};
+
+const willDisableTyping = async () => {
+    const savedUsername = localStorage.getItem("mby444-webchat-username");
+    if (savedUsername) {
+        const storedUsername = await getUsername(savedUsername);
+        if (storedUsername.data) return false;
+    }
+    textInput.setAttribute("disabled", "disabled");
+    textInput.placeholder = "Enter username first";
+    sendBtn.style.display = "none";
+    initialBtn.style.display = "inline";
+    localStorage.removeItem("mby444-webchat-username");
+    return true;
 };
 
 const getUsername = async (username) => {
@@ -162,13 +179,14 @@ const sendPostMessage = async (user) => {
     console.log(response);
 };
 
-const sendMessage = (user={ message: ""}) => {
+const sendMessage = async (user={ message: ""}) => {
     user.message = user.message.replace(/(\<script\>|\<\/script\>)/gim, "");
     if (!user.message) return;
+    if (await willDisableTyping()) return;
+    if (!localStorage.getItem("mby444-webchat-username")) return;
     const chatContainer = document.querySelector(".chat-container");
     const element = getMessageElement(user, { isAuthor: true });
     const prevMessage = chatContainer.innerHTML;
-    if (!localStorage.getItem("mby444-webchat-username")) return;
     sendPostMessage(user);
     socket.emit("send-message", user, () => {
         chatContainer.innerHTML = prevMessage + element;
@@ -195,7 +213,7 @@ socket.on("receive-message", (user) => {
 
 initialBtn.addEventListener("click", async () => {
     await generateUsername();
-    enableTyping();
+    willEnableTyping();
 });
 
 sendBtn.addEventListener("click", async () => {
@@ -209,5 +227,6 @@ window.addEventListener("load", () => {
     removeExpiredUsername();
     removeExpiredChat();
     generateStoredChat();
-    enableTyping();
+    willEnableTyping();
+    willDisableTyping();
 });
