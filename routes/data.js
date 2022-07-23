@@ -5,7 +5,7 @@ const router = express.Router();
 
 router.get("/username/:name", async (req, res) => {
     const { name } = req.params;
-    const oldUsername = await Username.findOne({ name });
+    const oldUsername = await Username.findOne({ name: { $regex: new RegExp(name), $options: "i" } });
     const options = {
         error: false,
         message: "Ok",

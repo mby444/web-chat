@@ -53,6 +53,7 @@ const willDisableTyping = async () => {
     }
     textInput.setAttribute("disabled", "disabled");
     textInput.placeholder = "Enter your username first";
+    textInput.value = "";
     sendBtn.style.display = "none";
     initialBtn.style.display = "inline";
     localStorage.removeItem("mby444-webchat-username");
@@ -82,6 +83,28 @@ const setUsername = async (username) => {
     console.log(response);
 };
 
+const promptUsername = (title) => new Promise(async (resolve, reject) => {
+    const result = await Swal.fire({
+        title,
+        input: "text",
+        inputAttributes: {
+            autocapitalize: 'off'
+        },
+        showCancelButton: true,
+        confirmButtonText: "Submit",
+
+        preConfirm(username) {
+            try {
+                resolve(username);
+            } catch (err) {
+                Swal.showValidationMessage(err.message);
+                resolve("");
+            }
+        }
+    });
+    resolve("");
+});
+
 const generateUsername = async () => {
     let savedUsername = localStorage.getItem("mby444-webchat-username");
     if (savedUsername) {
@@ -90,11 +113,13 @@ const generateUsername = async () => {
             return savedUsername;
         }
     }
-    let userInput = prompt("Enter username")?.trim();
+    // let userInput = prompt("Enter username")?.trim();
+    let userInput = await promptUsername("Enter username");
+    userInput = userInput.trim();
     if (!userInput) return "";
     let oldUsername = await getUsername(userInput);
     if (oldUsername.data) {
-        alert("Username already exists!");
+        await Swal.fire("Username already exists!", "", "error");
         return generateUsername();
     }
     await setUsername(userInput);

@@ -79,5 +79,8 @@ header {
 }
 
 .spinner-btn {
-    font-size: 16px;
+    height: 18px;
+    width: 18px;
+    margin: 0 16px;
+    font-size: 12px;
 }
