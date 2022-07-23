@@ -57,12 +57,14 @@ router.delete("/username/expired", async (req, res) => {
     const today = new Date();
     today.setUTCHours(0, 0, 0, 0);
     await Username.deleteMany({ loginDate: { $lt: today.getTime() } });
+    res.json({ message: "Ok" });
 });
 
 router.delete("/chat/expired", async (req, res) => {
     const today = new Date();
     today.setUTCHours(0, 0, 0, 0);
     await Chat.deleteMany({ dateMs: { $lt: today.getTime() } });
+    res.json({ message: "Ok" });
 });
 
 export default router;
