@@ -15,7 +15,9 @@ router.get("/username/:name", async (req, res) => {
 });
 
 router.get("/chat/all", async (req, res) => {
-    const chats = await Chat.find({});
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const chats = await Chat.find({ dateMs: { $gte: today.getTime() } });
     const options = {
         error: false,
         message: "Ok",
